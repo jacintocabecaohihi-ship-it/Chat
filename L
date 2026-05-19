@@ -1,0 +1,415 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- Configurações e Imagens
+local FILE_NAME = "Lezin_Ultimate_V13_Mod.json"
+local function GetImg(id) return "https://www.roblox.com/asset-thumbnail/image?assetId="..id.."&width=420&height=420&format=png" end
+
+local LOGO_MENU = GetImg("132628576014824")
+local LOGO_EXT = GetImg("102324915201289")
+local JUMP_IMG = GetImg("85855045078311")
+local PARTICLE_IMG1 = "rbxassetid://107721323064028"
+local PARTICLE_IMG2 = "rbxassetid://105384072434825"
+
+-- TABELA DE IDIOMAS
+local Langs = {
+    ["Português Brasil"] = {speedOn="VELOCIDADE: ON", speedOff="VELOCIDADE: OFF", extOn="Botão: Visível", extOff="Botão: Oculto", showJump="MOSTRAR PULO", hideJump="ESCONDER PULO", langTitle="Idioma: PT-BR", speedInput="Velocidade...", jumpInput="Força Pulo...", sizeInput="Tamanho Botão...", jSizeInput="Tamanho Pulo...", active="LIGADO", deactive="DESLIGADO", reset="RESETAR POSIÇÕES", mode="MODO: "},
+    ["Inglês"] = {speedOn="SPEED: ON", speedOff="SPEED: OFF", extOn="Button: Visible", extOff="Button: Hidden", showJump="SHOW JUMP", hideJump="HIDE JUMP", langTitle="Lang: English", speedInput="Speed...", jumpInput="Jump Power...", sizeInput="Button Size...", jSizeInput="Jump Size...", active="ENABLED", deactive="DISABLED", reset="RESET POSITIONS", mode="MODE: "},
+    ["Espanhol"] = {speedOn="VELOCIDAD: ON", speedOff="VELOCIDAD: OFF", extOn="Botón: Visible", extOff="Botón: Oculto", showJump="MOSTRAR SALTO", hideJump="OCULTAR SALTO", langTitle="Idioma: ES", speedInput="Velocidad...", jumpInput="Fuerza Salto...", sizeInput="Tamaño Botón...", jSizeInput="Tamaño Salto...", active="ENCENDIDO", deactive="APAGADO", reset="RESETEAR POSICIONES", mode="MODO: "},
+    ["Mandarim"] = {speedOn="速度: 开", speedOff="速度: 关", extOn="按钮: 可见", extOff="按钮: 隐藏", showJump="显示跳跃", hideJump="隐藏跳跃", langTitle="语言: 中文", speedInput="速度...", jumpInput="跳跃力...", sizeInput="按钮大小...", jSizeInput="跳跃大小...", active="已启用", deactive="已停用", reset="重置位置", mode="模式: "},
+    ["Francês"] = {speedOn="VITESSE: ON", speedOff="VITESSE: OFF", extOn="Bouton: Visible", extOff="Bouton: Caché", showJump="MONTRER SAUT", hideJump="CACHER SAUT", langTitle="Langue: FR", speedInput="Vitesse...", jumpInput="Force Saut...", sizeInput="Taille Bouton...", jSizeInput="Taille Saut...", active="ACTIVÉ", deactive="DÉSACTIVÉ", reset="RÉINITIALISER", mode="MODE: "},
+    ["Árabe"] = {speedOn="السرعة: تشغيل", speedOff="السرعة: إيقاف", extOn="الزر: مرئي", extOff="الزر: مخفي", showJump="إظهار القفز", hideJump="إخفاء القفز", langTitle="اللغة: AR", speedInput="السرعة...", jumpInput="قوة القفز...", sizeInput="حجم الزر...", jSizeInput="حجم القفز...", active="مفعل", deactive="معطل", reset="إعادة تعيين", mode="الوضع: "},
+    ["Hindi"] = {speedOn="गति: चालू", speedOff="गति: बंद", extOn="बटन: दृश्य", extOff="बटन: छिपा हुआ", showJump="कूद दिखाएं", hideJump="कूद छिपाएं", langTitle="भाषा: HI", speedInput="गति...", jumpInput="कूदने की शक्ति...", sizeInput="बटन का आकार...", jSizeInput="कूद का आकार...", active="सक्रिय", deactive="निष्क्रिय", reset="रीसेट", mode="मोड: "},
+    ["Russo"] = {speedOn="СКОРОСТЬ: ВКЛ", speedOff="СКОРОСТЬ: ВЫКЛ", extOn="Кнопка: Видна", extOff="Кнопка: Скрыта", showJump="ПОКАЗАТЬ ПРЫЖОК", hideJump="СКРЫТЬ ПРЫЖОК", langTitle="Язык: RU", speedInput="Скорость...", jumpInput="Сила прыжка...", sizeInput="Размер кнопки...", jSizeInput="Размер прыжка...", active="ВКЛЮЧЕНО", deactive="ОТКЛЮЧЕНО", reset="СБРОС ПОЗИЦИЙ", mode="РЕЖИМ: "},
+    ["Japonês"] = {speedOn="速度: オン", speedOff="速度: オフ", extOn="ボタン: 表示", extOff="ボタン: 非表示", showJump="ジャンプ表示", hideJump="ジャンプ非表示", langTitle="言語: JP", speedInput="速度...", jumpInput="ジャンプ力...", sizeInput="ボタンサイズ...", jSizeInput="ジャンプサイズ...", active="有効", deactive="無効", reset="リセット", mode="モード: "},
+    ["Alemão"] = {speedOn="SPEED: AN", speedOff="SPEED: AUS", extOn="Taste: Sichtbar", extOff="Taste: Versteckt", showJump="SPRUNG ZEIGEN", hideJump="SPRUNG VERSTECKEN", langTitle="Sprache: DE", speedInput="Geschwindigkeit...", jumpInput="Sprungkraft...", sizeInput="Tastengröße...", jSizeInput="Sprunggröße...", active="AKTIVIERT", deactive="DEAKTIVIERT", reset="ZURÜCKSETZEN", mode="MODUS: "},
+    ["Italiano"] = {speedOn="VELOCITÀ: ON", speedOff="VELOCITÀ: OFF", extOn="Pulsante: Visibile", extOff="Pulsante: Nascosto", showJump="MOSTRA SALTO", hideJump="NASCONDI SALTO", langTitle="Lingua: IT", speedInput="Velocità...", jumpInput="Forza Salto...", sizeInput="Misura Pulsante...", jSizeInput="Misura Salto...", active="ATTIVATO", deactive="DISATTIVATO", reset="RESET POSIZIONI", mode="MODALITÀ: "},
+}
+
+local Config = { 
+    speedVal = 16, jumpPower = 50, extSize = 55, jumpExtSize = 70, lang = "Português Brasil", speedMethod = "WalkSpeed",
+    posMenu = {0.5, -100, 0.2, 0}, posOpen = {0.5, -27, 0.5, -27}, posExt = {0.05, 0, 0.4, 0}, posJump = {0.8, 0, 0.6, 0}
+}
+
+-- Save/Load
+local function Save() if writefile then writefile(FILE_NAME, HttpService:JSONEncode(Config)) end end
+local function Load()
+    if isfile and isfile(FILE_NAME) then
+        local s, d = pcall(function() return HttpService:JSONDecode(readfile(FILE_NAME)) end)
+        if s and d then for k,v in pairs(d) do Config[k] = v end end
+    end
+end
+Load()
+-- Força posição central do botão OpenBtn após carregar
+Config.posOpen = {0.5, -27, 0.5, -27}
+
+local function TableToPos(t) return UDim2.new(t[1], t[2], t[3], t[4]) end
+local function PosToTable(u) return {u.X.Scale, u.X.Offset, u.Y.Scale, u.Y.Offset} end
+
+-- Função para gerar cor rainbow
+local function RainbowColor(t)
+    local hue = (tick() * 0.3 + t) % 1
+    return Color3.fromHSV(hue, 1, 1)
+end
+
+-- Efeito de mini explosão rainbow ao clicar nos botões externos
+local function SpawnBurstEffect(button, isSpeed)
+    local imageId = isSpeed and PARTICLE_IMG1 or PARTICLE_IMG2
+    local btnCenterX = button.Position.X.Offset + button.Size.X.Offset / 2
+    local btnCenterY = button.Position.Y.Offset + button.Size.Y.Offset / 2
+    
+    for i = 1, 12 do
+        local particle = Instance.new("ImageLabel", ScreenGui)
+        particle.Image = imageId
+        particle.BackgroundTransparency = 1
+        particle.ImageTransparency = 0
+        particle.Size = UDim2.new(0, 20, 0, 20)
+        particle.Position = UDim2.new(0, btnCenterX - 10, 0, btnCenterY - 10)
+        particle.ZIndex = 100
+        
+        local angle = math.rad(i * 30 + math.random(-10, 10))
+        local speed = 80 + math.random(40, 120)
+        local startTime = tick()
+        local duration = 0.8 + math.random() * 0.4
+        local colorOffset = i * 0.08
+        
+        local startX = btnCenterX - 10
+        local startY = btnCenterY - 10
+        local velX = math.cos(angle) * speed
+        local velY = math.sin(angle) * speed
+        
+        coroutine.wrap(function()
+            while tick() - startTime < duration do
+                local elapsed = tick() - startTime
+                local progress = elapsed / duration
+                local currentX = startX + velX * progress
+                local currentY = startY + velY * progress - (progress * 40) -- leve arco
+                
+                particle.ImageTransparency = progress
+                particle.ImageColor3 = RainbowColor(colorOffset + elapsed * 3)
+                particle.Position = UDim2.new(0, currentX, 0, currentY)
+                particle.Size = UDim2.new(0, 20 * (1 - progress * 0.7), 0, 20 * (1 - progress * 0.7))
+                particle.Rotation = elapsed * 720
+                
+                RunService.Heartbeat:Wait()
+            end
+            particle:Destroy()
+        end)()
+    end
+end
+
+-- Draggable
+local function MakeDraggable(gui, key)
+    local dragging, dragInput, dragStart, startPos
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true dragStart = input.Position startPos = gui.Position
+            input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then 
+                dragging = false Config[key] = PosToTable(gui.Position) Save() 
+            end end)
+        end
+    end)
+    gui.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end end)
+    UserInputService.InputChanged:Connect(function(input) if dragging and input == dragInput then
+        local delta = input.Position - dragStart
+        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end end)
+end
+
+-- UI Setup
+if CoreGui:FindFirstChild("LezinV13") then CoreGui.LezinV13:Destroy() end
+local ScreenGui = Instance.new("ScreenGui", CoreGui or player.PlayerGui)
+ScreenGui.Name = "LezinV13"
+
+-- Efeito Sonoro
+local ClickSound = Instance.new("Sound", ScreenGui)
+ClickSound.SoundId = "rbxassetid://125770097962649"
+ClickSound.Volume = 2
+
+local function Fade(obj, show)
+    local t = show and 0 or 1
+    if show then obj.Visible = true end
+    TweenService:Create(obj, TweenInfo.new(0.3), {
+        BackgroundTransparency = (obj:IsA("Frame") or obj:IsA("ScrollingFrame") and (show and 0 or 1) or (show and 0.2 or 1)),
+        ImageTransparency = (obj:IsA("ImageButton") and t or nil),
+        TextTransparency = (obj:IsA("TextButton") or obj:IsA("TextBox") and t or nil)
+    }):Play()
+    if not show then task.delay(0.3, function() obj.Visible = false end) end
+end
+
+-- Elementos
+local ExternalToggle = Instance.new("ImageButton", ScreenGui)
+ExternalToggle.Size = UDim2.new(0, Config.extSize, 0, Config.extSize)
+ExternalToggle.Position = TableToPos(Config.posExt)
+ExternalToggle.Image = LOGO_EXT
+ExternalToggle.Visible = false
+ExternalToggle.BackgroundColor3 = Color3.fromRGB(150, 40, 40)
+Instance.new("UICorner", ExternalToggle)
+MakeDraggable(ExternalToggle, "posExt")
+
+local JumpBtn = Instance.new("ImageButton", ScreenGui)
+JumpBtn.Size = UDim2.new(0, Config.jumpExtSize, 0, Config.jumpExtSize)
+JumpBtn.Position = TableToPos(Config.posJump)
+JumpBtn.Image = JUMP_IMG
+JumpBtn.Visible = false
+JumpBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+local JumpCorner = Instance.new("UICorner", JumpBtn)
+JumpCorner.CornerRadius = UDim.new(0, Config.jumpExtSize/2)
+MakeDraggable(JumpBtn, "posJump")
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 200, 0, 520)
+Main.Position = TableToPos(Config.posMenu)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Main.ClipsDescendants = true
+Main.Visible = false
+Instance.new("UICorner", Main)
+MakeDraggable(Main, "posMenu")
+
+local function CreateBtn(parent, pos, text, color)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(0, 170, 0, 32)
+    b.Position = pos
+    b.Text = text
+    b.BackgroundColor3 = color or Color3.fromRGB(40, 40, 40)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = "GothamBold"
+    b.TextSize = 12
+    Instance.new("UICorner", b)
+    return b
+end
+
+local function CreateInp(parent, pos, placeholder, val)
+    local i = Instance.new("TextBox", parent)
+    i.Size = UDim2.new(0, 170, 0, 30)
+    i.Position = pos
+    i.Text = tostring(val)
+    i.PlaceholderText = placeholder
+    i.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    i.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", i)
+    return i
+end
+
+-- Botões do Menu
+local SInput = CreateInp(Main, UDim2.new(0.07, 0, 0.03, 0), "Speed", Config.speedVal)
+local SToggle = CreateBtn(Main, UDim2.new(0.07, 0, 0.10, 0), "OFF")
+local SMethodBtn = CreateBtn(Main, UDim2.new(0.07, 0, 0.17, 0), "MODO: "..Config.speedMethod, Color3.fromRGB(80, 0, 150))
+local ExtBtnTog = CreateBtn(Main, UDim2.new(0.07, 0, 0.24, 0), "OFF")
+local SizeInput = CreateInp(Main, UDim2.new(0.07, 0, 0.31, 0), "Size", Config.extSize)
+local LangBtn = CreateBtn(Main, UDim2.new(0.07, 0, 0.38, 0), Config.lang, Color3.fromRGB(0, 100, 200))
+
+local JSizeInput = CreateInp(Main, UDim2.new(0.07, 0, 0.45, 0), "Jump Size", Config.jumpExtSize)
+local JInput = CreateInp(Main, UDim2.new(0.07, 0, 0.52, 0), "Jump", Config.jumpPower)
+local JToggle = CreateBtn(Main, UDim2.new(0.07, 0, 0.59, 0), "OFF")
+local ResetPosBtn = CreateBtn(Main, UDim2.new(0.07, 0, 0.66, 0), "RESET POSITIONS", Color3.fromRGB(150, 80, 0))
+
+-- Dropdown de Idiomas
+local LangDropdown = Instance.new("ScrollingFrame", Main)
+LangDropdown.Size = UDim2.new(0, 170, 0, 140)
+LangDropdown.Position = UDim2.new(0.07, 0, 0.45, 0)
+LangDropdown.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+LangDropdown.ZIndex = 10
+LangDropdown.ScrollBarThickness = 4
+LangDropdown.Visible = false
+Instance.new("UICorner", LangDropdown)
+
+local UIList = Instance.new("UIListLayout", LangDropdown)
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local TodosIdiomas = {"Português Brasil", "Inglês", "Espanhol", "Mandarim", "Francês", "Árabe", "Hindi", "Russo", "Japonês", "Alemão", "Italiano"}
+for _, l in ipairs(TodosIdiomas) do
+    local btn = Instance.new("TextButton", LangDropdown)
+    btn.Size = UDim2.new(1, 0, 0, 28)
+    btn.Text = l
+    btn.BackgroundTransparency = 1
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.ZIndex = 11
+    btn.Font = "Gotham"
+    btn.TextSize = 12
+    btn.MouseButton1Click:Connect(function()
+        Config.lang = l
+        LangDropdown.Visible = false
+        UpdateTexts()
+        Save()
+    end)
+end
+LangDropdown.CanvasSize = UDim2.new(0, 0, 0, #TodosIdiomas * 28)
+
+LangBtn.MouseButton1Click:Connect(function()
+    LangDropdown.Visible = not LangDropdown.Visible
+end)
+
+function UpdateTexts()
+    local L = Langs[Config.lang] or Langs["Inglês"]
+    SInput.PlaceholderText = L.speedInput
+    JInput.PlaceholderText = L.jumpInput
+    SizeInput.PlaceholderText = L.sizeInput
+    JSizeInput.PlaceholderText = L.jSizeInput
+    LangBtn.Text = L.langTitle
+    JToggle.Text = JumpBtn.Visible and L.hideJump or L.showJump
+    ExtBtnTog.Text = ExternalToggle.Visible and L.extOn or L.extOff
+    SToggle.Text = _G.Spd and L.speedOn or L.speedOff
+    SMethodBtn.Text = L.mode .. Config.speedMethod
+    ResetPosBtn.Text = L.reset
+end
+
+-- Lógica Speed Method arrumada
+SMethodBtn.MouseButton1Click:Connect(function()
+    Config.speedMethod = (Config.speedMethod == "CFrame" and "WalkSpeed" or "CFrame")
+    
+    -- Força reset do WalkSpeed para 16 quando muda o método para prevenir sobreposição
+    local char = player.Character
+    local hum = char and char:FindFirstChild("Humanoid")
+    if hum then hum.WalkSpeed = 16 end
+
+    UpdateTexts()
+    Save()
+end)
+
+-- Lógica Reset Pos
+ResetPosBtn.MouseButton1Click:Connect(function()
+    Config.posMenu = {0.5, -100, 0.3, 0}
+    Config.posOpen = {0.5, -27, 0.5, -27}
+    Config.posExt = {0.05, 0, 0.4, 0}
+    Config.posJump = {0.8, 0, 0.6, 0}
+    
+    Main.Position = TableToPos(Config.posMenu)
+    ExternalToggle.Position = TableToPos(Config.posExt)
+    JumpBtn.Position = TableToPos(Config.posJump)
+    if ScreenGui:FindFirstChild("OpenBtn") then ScreenGui.OpenBtn.Position = TableToPos(Config.posOpen) end
+    Save()
+end)
+
+-- Loop Speed
+RunService.Heartbeat:Connect(function()
+    if _G.Spd then
+        local char = player.Character
+        local hum = char and char:FindFirstChild("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        
+        if hum and hrp then
+            if Config.speedMethod == "CFrame" then
+                if hum.MoveDirection.Magnitude > 0 then
+                    hrp.CFrame = hrp.CFrame + (hum.MoveDirection * (Config.speedVal / 10))
+                end
+            else
+                hum.WalkSpeed = Config.speedVal
+            end
+        end
+    else
+        local char = player.Character
+        local hum = char and char:FindFirstChild("Humanoid")
+        if hum and Config.speedMethod == "WalkSpeed" then hum.WalkSpeed = 16 end
+    end
+end)
+
+-- Efeito Fade do Texto (ON/OFF)
+local function ShowStatusText(isOn)
+    if not ExternalToggle.Visible then return end
+    
+    local txt = Instance.new("TextLabel", ScreenGui)
+    txt.Text = isOn and "ON" or "OFF"
+    txt.TextColor3 = isOn and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
+    txt.BackgroundTransparency = 1
+    txt.Font = Enum.Font.GothamBold
+    txt.TextSize = 16
+    txt.Size = UDim2.new(0, 50, 0, 20)
+    
+    local startY = ExternalToggle.Position.Y.Offset + (Config.extSize / 2) - 10
+    txt.Position = UDim2.new(ExternalToggle.Position.X.Scale, ExternalToggle.Position.X.Offset + Config.extSize + 5, ExternalToggle.Position.Y.Scale, startY)
+    
+    local tween = TweenService:Create(txt, TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = 1,
+        Position = UDim2.new(txt.Position.X.Scale, txt.Position.X.Offset, txt.Position.Y.Scale, startY - 30)
+    })
+    
+    tween:Play()
+    task.delay(1.5, function() if txt then txt:Destroy() end end)
+end
+
+local function TogSpeed()
+    _G.Spd = not _G.Spd
+    UpdateTexts()
+    ShowStatusText(_G.Spd)
+end
+
+SToggle.MouseButton1Click:Connect(TogSpeed)
+
+ExternalToggle.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    SpawnBurstEffect(ExternalToggle, true)
+    TogSpeed()
+end)
+
+ExtBtnTog.MouseButton1Click:Connect(function()
+    Fade(ExternalToggle, not ExternalToggle.Visible)
+    task.wait(0.4) UpdateTexts()
+end)
+
+JToggle.MouseButton1Click:Connect(function()
+    Fade(JumpBtn, not JumpBtn.Visible)
+    task.wait(0.4) UpdateTexts()
+end)
+
+JumpBtn.MouseButton1Click:Connect(function()
+    ClickSound:Play()
+    SpawnBurstEffect(JumpBtn, false)
+    local h = player.Character:FindFirstChild("HumanoidRootPart")
+    if h then h.Velocity = Vector3.new(h.Velocity.X, Config.jumpPower, h.Velocity.Z) end
+end)
+
+SInput.FocusLost:Connect(function() Config.speedVal = tonumber(SInput.Text) or 16 Save() end)
+JInput.FocusLost:Connect(function() Config.jumpPower = tonumber(JInput.Text) or 50 Save() end)
+
+SizeInput.FocusLost:Connect(function() 
+    local newSize = tonumber(SizeInput.Text)
+    if newSize then
+        Config.extSize = newSize
+        ExternalToggle.Size = UDim2.new(0, newSize, 0, newSize)
+        Save()
+    else
+        SizeInput.Text = tostring(Config.extSize)
+    end
+end)
+
+JSizeInput.FocusLost:Connect(function()
+    local newSize = tonumber(JSizeInput.Text)
+    if newSize then
+        Config.jumpExtSize = newSize
+        JumpBtn.Size = UDim2.new(0, newSize, 0, newSize)
+        JumpCorner.CornerRadius = UDim.new(0, newSize/2)
+        Save()
+    else
+        JSizeInput.Text = tostring(Config.jumpExtSize)
+    end
+end)
+
+local OpenBtn = Instance.new("ImageButton", ScreenGui)
+OpenBtn.Name = "OpenBtn"
+OpenBtn.Size = UDim2.new(0, 55, 0, 55)
+OpenBtn.Position = TableToPos(Config.posOpen)
+OpenBtn.Image = LOGO_MENU
+OpenBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Instance.new("UICorner", OpenBtn)
+MakeDraggable(OpenBtn, "posOpen")
+
+OpenBtn.MouseButton1Click:Connect(function() 
+    local isOpen = not Main.Visible
+    if isOpen then
+        Main.Size = UDim2.new(0, 200, 0, 0)
+        TweenService:Create(Main, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 200, 0, 520)}):Play()
+        Fade(Main, true)
+    else
+        TweenService:Create(Main, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = UDim2.new(0, 200, 0, 0)}):Play()
+        Fade(Main, false)
+        LangDropdown.Visible = false
+    end
+end)
+
+UpdateTexts()
